@@ -102,3 +102,21 @@ def test_textbox_uses_provided_rect() -> None:
     """The item's rect matches the constructor argument."""
     item = TextBoxItem(QRectF(10, 20, 300, 100))
     assert item.rect() == QRectF(10, 20, 300, 100)
+
+
+def test_slide_add_text_box_appends_to_scene_and_list() -> None:
+    """add_text_box creates a TextBoxItem, adds it to the scene and tracking list."""
+    slide = Slide()
+    item = slide.add_text_box(QRectF(10, 20, 200, 80))
+    assert isinstance(item, TextBoxItem)
+    assert item in slide.text_boxes
+    assert item in slide.scene.items()
+
+
+def test_slide_remove_text_box_removes_from_scene_and_list() -> None:
+    """remove_text_box removes the item from both the scene and tracking list."""
+    slide = Slide()
+    item = slide.add_text_box(QRectF(0, 0, 100, 50))
+    slide.remove_text_box(item)
+    assert item not in slide.text_boxes
+    assert item not in slide.scene.items()

@@ -1,8 +1,11 @@
 """Data models for the minimal PowerPoint clone."""
 from __future__ import annotations
 
-from PyQt6.QtCore import QRectF
+from PyQt6.QtCore import QRectF, QSize
+from PyQt6.QtGui import QPainter, QPixmap
 from PyQt6.QtWidgets import QGraphicsScene
+
+from minppt.textbox import TextBoxItem
 
 
 SLIDE_WIDTH = 960
@@ -16,7 +19,30 @@ class Slide:
         """Create an empty slide with a 960x540 scene."""
         self.scene: QGraphicsScene = QGraphicsScene()
         self.scene.setSceneRect(QRectF(0, 0, SLIDE_WIDTH, SLIDE_HEIGHT))
-        self.text_boxes: list = []
+        self.text_boxes: list[TextBoxItem] = []
+
+    def add_text_box(self, rect: QRectF) -> TextBoxItem:
+        """Create a text box with the given rect, add it to the scene, and return it."""
+        item = TextBoxItem(rect)
+        self.scene.addItem(item)
+        self.text_boxes.append(item)
+        return item
+
+    def remove_text_box(self, item: TextBoxItem) -> None:
+        """Remove a text box from the scene and tracking list."""
+        if item in self.text_boxes:
+            self.text_boxes.remove(item)
+        self.scene.removeItem(item)
+
+    def render_thumbnail(self, size: QSize) -> QPixmap:
+        """Render the slide's scene into a QPixmap of the requested size."""
+        pixmap = QPixmap(size)
+        pixmap.fill()
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        self.scene.render(painter)
+        painter.end()
+        return pixmap
 
 
 class Deck:
