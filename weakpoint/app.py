@@ -10,10 +10,10 @@ from PyQt6.QtWidgets import (
     QSplitter,
 )
 
-from minppt.models import Deck, Slide
-from minppt.slide_panel import SlidePanel
-from minppt.textbox import TextBoxItem
-from minppt.toolbar import Toolbar
+from weakpoint.models import Deck, Slide
+from weakpoint.slide_panel import SlidePanel
+from weakpoint.textbox import TextBoxItem
+from weakpoint.toolbar import Toolbar
 
 
 class MainWindow(QMainWindow):
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         """Build the window and wire every signal/slot."""
         super().__init__()
-        self.setWindowTitle("minppt")
+        self.setWindowTitle("WeakPoint")
         self.resize(1200, 720)
 
         self._deck = Deck()

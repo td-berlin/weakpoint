@@ -3,8 +3,8 @@ from PyQt6.QtCore import QRectF, Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QGraphicsScene
 
-from minppt.models import Deck, Slide
-from minppt.textbox import TextBoxItem
+from weakpoint.models import Deck, Slide
+from weakpoint.textbox import TextBoxItem
 
 
 def test_slide_has_scene_with_correct_bounds() -> None:

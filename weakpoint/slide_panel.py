@@ -5,7 +5,7 @@ from PyQt6.QtCore import QSize, pyqtSignal
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem
 
-from minppt.models import Deck, Slide
+from weakpoint.models import Deck, Slide
 
 
 THUMB_SIZE = QSize(160, 90)

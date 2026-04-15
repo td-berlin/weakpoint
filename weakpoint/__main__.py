@@ -1,11 +1,11 @@
-"""Entry point: ``python -m minppt``."""
+"""Entry point: ``python -m weakpoint``."""
 from __future__ import annotations
 
 import sys
 
 from PyQt6.QtWidgets import QApplication
 
-from minppt.app import MainWindow
+from weakpoint.app import MainWindow
 
 
 def main() -> int:

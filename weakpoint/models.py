@@ -5,7 +5,7 @@ from PyQt6.QtCore import QRectF, QSize
 from PyQt6.QtGui import QPainter, QPixmap
 from PyQt6.QtWidgets import QGraphicsScene
 
-from minppt.textbox import TextBoxItem
+from weakpoint.textbox import TextBoxItem
 
 
 SLIDE_WIDTH = 960
