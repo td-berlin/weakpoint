@@ -120,3 +120,15 @@ def test_slide_remove_text_box_removes_from_scene_and_list() -> None:
     slide.remove_text_box(item)
     assert item not in slide.text_boxes
     assert item not in slide.scene.items()
+
+
+def test_textbox_clamps_position_to_scene_rect() -> None:
+    """A text box cannot be moved outside the 960x540 scene rect."""
+    slide = Slide()
+    item = slide.add_text_box(QRectF(0, 0, 200, 80))
+    # Try to push the item far off-screen; itemChange should clamp it back.
+    item.setPos(5000, 5000)
+    pos = item.scenePos()
+    # The rect's right/bottom must not exceed the scene rect.
+    assert pos.x() + item.rect().width() <= 960 + 1e-6
+    assert pos.y() + item.rect().height() <= 540 + 1e-6
