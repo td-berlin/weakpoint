@@ -122,6 +122,22 @@ def test_slide_remove_text_box_removes_from_scene_and_list() -> None:
     assert item not in slide.scene.items()
 
 
+def test_textbox_default_font_size_and_bold() -> None:
+    """A fresh TextBoxItem has default font size 18 and is not bold."""
+    item = TextBoxItem(QRectF(0, 0, 200, 80))
+    assert item.font_size == 18
+    assert item.bold is False
+
+
+def test_textbox_font_setters_persist_values() -> None:
+    """Setting font_size and bold stores the assigned values."""
+    item = TextBoxItem(QRectF(0, 0, 200, 80))
+    item.font_size = 32
+    item.bold = True
+    assert item.font_size == 32
+    assert item.bold is True
+
+
 def test_textbox_clamps_position_to_scene_rect() -> None:
     """A text box cannot be moved outside the 960x540 scene rect."""
     slide = Slide()

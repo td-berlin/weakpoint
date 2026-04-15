@@ -4,7 +4,7 @@ from __future__ import annotations
 from enum import Enum, auto
 
 from PyQt6.QtCore import QPointF, QRectF, Qt
-from PyQt6.QtGui import QColor, QFocusEvent, QPainter, QPen
+from PyQt6.QtGui import QColor, QFocusEvent, QFont, QPainter, QPen
 from PyQt6.QtWidgets import (
     QGraphicsItem,
     QGraphicsRectItem,
@@ -37,6 +37,10 @@ class _EditableText(QGraphicsTextItem):
         super().__init__(parent.text, parent)
         self._parent_box = parent
         self.setDefaultTextColor(parent.text_color)
+        font = QFont()
+        font.setPointSize(parent.font_size)
+        font.setBold(parent.bold)
+        self.setFont(font)
         self.setTextInteractionFlags(Qt.TextInteractionFlag.TextEditorInteraction)
         rect = parent.rect()
         self.setPos(rect.topLeft())
@@ -55,6 +59,7 @@ class TextBoxItem(QGraphicsRectItem):
 
     HANDLE_SIZE = 8.0
     MIN_SIZE = 20.0
+    DEFAULT_FONT_SIZE = 18
 
     def __init__(self, rect: QRectF, text: str = "Text") -> None:
         """Create a text box with the given rect and initial text."""
@@ -62,6 +67,8 @@ class TextBoxItem(QGraphicsRectItem):
         self._text: str = text
         self._fill_color: QColor = QColor(Qt.GlobalColor.white)
         self._text_color: QColor = QColor(Qt.GlobalColor.black)
+        self._font_size: int = self.DEFAULT_FONT_SIZE
+        self._bold: bool = False
         self._active_handle: _Handle = _Handle.NONE
         self._editor: _EditableText | None = None
         self.setFlags(
@@ -101,6 +108,26 @@ class TextBoxItem(QGraphicsRectItem):
         self._text_color = QColor(value)
         self.update()
 
+    @property
+    def font_size(self) -> int:
+        """The text point size."""
+        return self._font_size
+
+    @font_size.setter
+    def font_size(self, value: int) -> None:
+        self._font_size = int(value)
+        self.update()
+
+    @property
+    def bold(self) -> bool:
+        """Whether text is rendered bold."""
+        return self._bold
+
+    @bold.setter
+    def bold(self, value: bool) -> None:
+        self._bold = bool(value)
+        self.update()
+
     def boundingRect(self) -> QRectF:
         """Return the rect plus a margin so selection handles can be drawn."""
         margin = self.HANDLE_SIZE / 2 + 1
@@ -119,6 +146,10 @@ class TextBoxItem(QGraphicsRectItem):
         painter.drawRect(self.rect())
 
         if self._editor is None:
+            font = QFont()
+            font.setPointSize(self._font_size)
+            font.setBold(self._bold)
+            painter.setFont(font)
             painter.setPen(self._text_color)
             painter.drawText(self.rect(), int(Qt.AlignmentFlag.AlignCenter), self._text)
 
