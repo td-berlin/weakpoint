@@ -55,6 +55,8 @@ class MainWindow(QMainWindow):
         self._toolbar.add_text_box_action.triggered.connect(self._add_text_box)
         self._toolbar.fill_color_action.triggered.connect(self._pick_fill_color)
         self._toolbar.text_color_action.triggered.connect(self._pick_text_color)
+        self._toolbar.size_spinbox.valueChanged.connect(self._on_font_size_changed)
+        self._toolbar.bold_action.toggled.connect(self._on_bold_toggled)
         self._slide_panel.slide_selected.connect(self._on_slide_selected)
 
     def _subscribe_scene_changes(self, slide: Slide) -> None:
@@ -101,9 +103,18 @@ class MainWindow(QMainWindow):
         self._update_toolbar_state()
 
     def _selected_text_box(self) -> TextBoxItem | None:
-        """Return the currently selected text box, if any."""
-        slide = self._deck.slides[self._deck.current_index]
-        for it in slide.scene.selectedItems():
+        """Return the currently selected text box, if any.
+
+        Returns ``None`` if the current slide's scene has already been destroyed
+        (possible during app shutdown when a selectionChanged signal fires after
+        the underlying C++ QGraphicsScene has gone away).
+        """
+        try:
+            slide = self._deck.slides[self._deck.current_index]
+            items = slide.scene.selectedItems()
+        except RuntimeError:
+            return None
+        for it in items:
             if isinstance(it, TextBoxItem):
                 return it
         return None
@@ -126,6 +137,18 @@ class MainWindow(QMainWindow):
         if color.isValid():
             item.text_color = color
 
+    def _on_font_size_changed(self, value: int) -> None:
+        """Apply the spinbox's font size to the selected text box."""
+        item = self._selected_text_box()
+        if item is not None:
+            item.font_size = value
+
+    def _on_bold_toggled(self, checked: bool) -> None:
+        """Apply the bold action state to the selected text box."""
+        item = self._selected_text_box()
+        if item is not None:
+            item.bold = checked
+
     def _on_slide_selected(self, row: int) -> None:
         """React to thumbnail selection by swapping the visible scene."""
         self._deck.move_to(row)
@@ -141,6 +164,16 @@ class MainWindow(QMainWindow):
         self._slide_panel.refresh_thumbnail(index)
 
     def _update_toolbar_state(self) -> None:
-        """Sync toolbar enabled-state with deck and selection."""
+        """Sync toolbar enabled-state and font controls with deck and selection."""
         self._toolbar.set_delete_slide_enabled(len(self._deck.slides) > 1)
-        self._toolbar.set_color_actions_enabled(self._selected_text_box() is not None)
+        item = self._selected_text_box()
+        has_selection = item is not None
+        self._toolbar.set_color_actions_enabled(has_selection)
+        self._toolbar.set_font_actions_enabled(has_selection)
+        if item is not None:
+            self._toolbar.size_spinbox.blockSignals(True)
+            self._toolbar.size_spinbox.setValue(item.font_size)
+            self._toolbar.size_spinbox.blockSignals(False)
+            self._toolbar.bold_action.blockSignals(True)
+            self._toolbar.bold_action.setChecked(item.bold)
+            self._toolbar.bold_action.blockSignals(False)
