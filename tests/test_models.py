@@ -1,8 +1,10 @@
 """Tests for the Deck and Slide models."""
-from PyQt6.QtCore import QRectF
+from PyQt6.QtCore import QRectF, Qt
+from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QGraphicsScene
 
 from minppt.models import Deck, Slide
+from minppt.textbox import TextBoxItem
 
 
 def test_slide_has_scene_with_correct_bounds() -> None:
@@ -75,3 +77,28 @@ def test_deck_move_to_sets_current_index() -> None:
     deck.add_slide()  # 3 slides
     deck.move_to(0)
     assert deck.current_index == 0
+
+
+def test_textbox_defaults() -> None:
+    """A fresh TextBoxItem has default text, white fill, black text color."""
+    item = TextBoxItem(QRectF(0, 0, 200, 80))
+    assert item.text == "Text"
+    assert item.fill_color == QColor(Qt.GlobalColor.white)
+    assert item.text_color == QColor(Qt.GlobalColor.black)
+
+
+def test_textbox_setters_persist_values() -> None:
+    """Setting text/fill_color/text_color stores the assigned value."""
+    item = TextBoxItem(QRectF(0, 0, 200, 80))
+    item.text = "Hello"
+    item.fill_color = QColor("red")
+    item.text_color = QColor("blue")
+    assert item.text == "Hello"
+    assert item.fill_color == QColor("red")
+    assert item.text_color == QColor("blue")
+
+
+def test_textbox_uses_provided_rect() -> None:
+    """The item's rect matches the constructor argument."""
+    item = TextBoxItem(QRectF(10, 20, 300, 100))
+    assert item.rect() == QRectF(10, 20, 300, 100)
