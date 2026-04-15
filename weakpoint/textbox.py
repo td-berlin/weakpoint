@@ -61,7 +61,7 @@ class TextBoxItem(QGraphicsRectItem):
     MIN_SIZE = 20.0
     DEFAULT_FONT_SIZE = 18
 
-    def __init__(self, rect: QRectF, text: str = "Text") -> None:
+    def __init__(self, rect: QRectF, text: str = "") -> None:
         """Create a text box with the given rect and initial text."""
         super().__init__(rect)
         self._text: str = text

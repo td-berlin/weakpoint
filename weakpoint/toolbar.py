@@ -15,7 +15,7 @@ class Toolbar(QToolBar):
 
         self.add_slide_action = QAction("+ Slide", self)
         self.delete_slide_action = QAction("- Slide", self)
-        self.add_text_box_action = QAction("+ Text Box", self)
+        self.add_text_box_action = QAction("Box", self)
         self.fill_color_action = QAction("Fill...", self)
         self.text_color_action = QAction("Text...", self)
         self.bold_action = QAction("Bold", self)

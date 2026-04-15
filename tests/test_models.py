@@ -80,9 +80,9 @@ def test_deck_move_to_sets_current_index() -> None:
 
 
 def test_textbox_defaults() -> None:
-    """A fresh TextBoxItem has default text, white fill, black text color."""
+    """A fresh TextBoxItem has empty text, white fill, black text color."""
     item = TextBoxItem(QRectF(0, 0, 200, 80))
-    assert item.text == "Text"
+    assert item.text == ""
     assert item.fill_color == QColor(Qt.GlobalColor.white)
     assert item.text_color == QColor(Qt.GlobalColor.black)
 
