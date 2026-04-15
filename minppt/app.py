@@ -74,6 +74,9 @@ class MainWindow(QMainWindow):
         """Remove the current slide; disabled when only one remains."""
         if len(self._deck.slides) <= 1:
             return
+        old_slide = self._deck.slides[self._deck.current_index]
+        old_slide.scene.changed.disconnect()
+        old_slide.scene.selectionChanged.disconnect()
         self._deck.remove_slide(self._deck.current_index)
         self._slide_panel.refresh()
         self._view.setScene(self._deck.slides[self._deck.current_index].scene)
