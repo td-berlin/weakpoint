@@ -2,9 +2,8 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from weakpoint.tui.app import WeakpointTuiApp
+from weakpoint.tui.screens.edit_screen import EditScreen
 
 
 def _typing_keys(s: str) -> list[str]:
@@ -21,16 +20,13 @@ def _typing_keys(s: str) -> list[str]:
     return [mapping.get(ch, ch) for ch in s]
 
 
-@pytest.mark.asyncio
 async def test_app_boots_with_edit_screen():
     """App should launch and show EditScreen as the active screen."""
     app = WeakpointTuiApp()
     async with app.run_test() as pilot:
-        from weakpoint.tui.screens.edit_screen import EditScreen
         assert isinstance(pilot.app.screen, EditScreen)
 
 
-@pytest.mark.asyncio
 async def test_add_slide_then_add_box_then_save(tmp_path: Path):
     """Full round-trip: add slide, add box via command bar, save to file."""
     app = WeakpointTuiApp()
