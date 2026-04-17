@@ -154,3 +154,152 @@ def _parse_on_off(verb: str, arg: str) -> bool:
     if arg == "off":
         return False
     raise ParseError(f"{verb}: expected on|off, got {arg!r}")
+
+
+# --- dispatcher ---------------------------------------------------------
+
+import os
+import uuid
+
+from weakpoint.tui.models import (
+    SLIDE_COLS,
+    SLIDE_ROWS,
+    Deck,
+    Image as ImageModel,
+    Slide,
+    TextBox,
+)
+from weakpoint.tui.persistence import load_deck, save_deck
+
+
+DEFAULT_IMAGE_W = 40
+DEFAULT_IMAGE_H = 12
+
+
+@dataclass
+class AppState:
+    """Mutable state the dispatcher operates on."""
+
+    deck: Deck
+    selected_id: str | None = None
+    dirty: bool = False
+    should_quit: bool = False
+
+
+@dataclass
+class DispatchResult:
+    """Status message returned for display in the status bar."""
+
+    message: str
+    error: bool = False
+
+
+def dispatch(cmd: Command, state: AppState) -> DispatchResult:
+    """Apply ``cmd`` to ``state`` and return a status message."""
+    try:
+        return _dispatch(cmd, state)
+    except Exception as exc:  # noqa: BLE001
+        return DispatchResult(message=str(exc), error=True)
+
+
+def _dispatch(cmd: Command, state: AppState) -> DispatchResult:
+    if isinstance(cmd, AddBox):
+        return _do_add_box(cmd, state)
+    if isinstance(cmd, AddImage):
+        return _do_add_image(cmd, state)
+    if isinstance(cmd, SetTitle):
+        _current(state).title = cmd.title
+        state.dirty = True
+        return DispatchResult(message="title set")
+    if isinstance(cmd, Align):
+        return _mutate_selected_box(state, lambda b: setattr(b, "align", cmd.value), "alignment set")
+    if isinstance(cmd, ColorCmd):
+        return _mutate_selected_box(state, lambda b: setattr(b, "color", cmd.value), "color set")
+    if isinstance(cmd, Bullets):
+        return _mutate_selected_box(state, lambda b: setattr(b, "bullets", cmd.on), "bullets set")
+    if isinstance(cmd, Numbered):
+        return _mutate_selected_box(state, lambda b: setattr(b, "numbered", cmd.on), "numbered set")
+    if isinstance(cmd, Save):
+        return _do_save(cmd.path, state)
+    if isinstance(cmd, SaveQuit):
+        res = _do_save(cmd.path, state)
+        if not res.error:
+            state.should_quit = True
+        return res
+    if isinstance(cmd, Open):
+        return _do_open(cmd, state)
+    if isinstance(cmd, Quit):
+        if state.dirty and not cmd.force:
+            return DispatchResult(message="unsaved changes — use :q! or :wq", error=True)
+        state.should_quit = True
+        return DispatchResult(message="bye")
+    raise ValueError(f"unhandled command: {cmd!r}")
+
+
+def _current(state: AppState) -> Slide:
+    return state.deck.slides[state.deck.current_index]
+
+
+def _new_id() -> str:
+    return uuid.uuid4().hex
+
+
+def _in_bounds(x: int, y: int, w: int, h: int) -> bool:
+    return w > 0 and h > 0 and x >= 0 and y >= 0 and x + w <= SLIDE_COLS and y + h <= SLIDE_ROWS
+
+
+def _do_add_box(cmd: AddBox, state: AppState) -> DispatchResult:
+    if not _in_bounds(cmd.x, cmd.y, cmd.w, cmd.h):
+        return DispatchResult(message="out of bounds", error=True)
+    box = TextBox(id=_new_id(), x=cmd.x, y=cmd.y, w=cmd.w, h=cmd.h, text=cmd.text)
+    _current(state).text_boxes.append(box)
+    state.selected_id = box.id
+    state.dirty = True
+    return DispatchResult(message="box added")
+
+
+def _do_add_image(cmd: AddImage, state: AppState) -> DispatchResult:
+    x = (SLIDE_COLS - DEFAULT_IMAGE_W) // 2
+    y = (SLIDE_ROWS - DEFAULT_IMAGE_H) // 2
+    img = ImageModel(id=_new_id(), x=x, y=y, w=DEFAULT_IMAGE_W, h=DEFAULT_IMAGE_H, path=cmd.path)
+    _current(state).images.append(img)
+    state.selected_id = img.id
+    state.dirty = True
+    return DispatchResult(message=f"image added: {cmd.path}")
+
+
+def _mutate_selected_box(state: AppState, fn, msg: str) -> DispatchResult:
+    box = _selected_box(state)
+    if box is None:
+        return DispatchResult(message="select a text box first", error=True)
+    fn(box)
+    state.dirty = True
+    return DispatchResult(message=msg)
+
+
+def _selected_box(state: AppState) -> TextBox | None:
+    if state.selected_id is None:
+        return None
+    for b in _current(state).text_boxes:
+        if b.id == state.selected_id:
+            return b
+    return None
+
+
+def _do_save(path: str | None, state: AppState) -> DispatchResult:
+    target = path or state.deck.path
+    if target is None:
+        return DispatchResult(message="save: path required (deck is untitled)", error=True)
+    save_deck(state.deck, target)
+    state.dirty = False
+    return DispatchResult(message=f"saved {os.path.basename(target)}")
+
+
+def _do_open(cmd: Open, state: AppState) -> DispatchResult:
+    if state.dirty and not cmd.force:
+        return DispatchResult(message="unsaved changes — use :o! to discard", error=True)
+    loaded = load_deck(cmd.path)
+    state.deck = loaded
+    state.selected_id = None
+    state.dirty = False
+    return DispatchResult(message=f"opened {os.path.basename(cmd.path)}")
