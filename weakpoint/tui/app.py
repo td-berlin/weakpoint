@@ -141,7 +141,14 @@ class WeakpointTuiApp(App):
         self._refresh_ui()
 
     def action_deselect(self) -> None:
-        """Clear the current selection."""
+        """Esc: cancel COMMAND/INSERT mode if active, otherwise clear selection."""
+        if self.state_mode in ("COMMAND", "INSERT"):
+            bar = self.query_one(CommandBar)
+            bar.hide()
+            self._insert_target_id = None
+            self._set_mode("NORMAL")
+            self._set_status_message("cancelled")
+            return
         self.state.selected_id = None
         self._refresh_ui()
 
@@ -223,9 +230,11 @@ class WeakpointTuiApp(App):
 
     def on_input_submitted(self, event) -> None:
         """Handle Enter on the command bar: dispatch a command or commit edited text."""
+        mode = self.state_mode
+        if mode not in ("COMMAND", "INSERT"):
+            return
         bar = self.query_one(CommandBar)
         value = event.value
-        mode = self.state_mode
         bar.hide()
         self._set_mode("NORMAL")
         if mode == "INSERT":
