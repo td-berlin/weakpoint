@@ -67,7 +67,10 @@ class WeakpointTuiApp(App):
 
     def on_mount(self) -> None:
         """Install the EditScreen and refresh the UI on first mount."""
-        self.push_screen(EditScreen())
+        self.push_screen(EditScreen(), callback=self._after_screen_mounted)
+
+    def _after_screen_mounted(self) -> None:
+        """Refresh the UI once EditScreen and its children are composed."""
         self._refresh_ui()
         if self._boot_error:
             self._set_status_message(self._boot_error, error=True)
@@ -76,7 +79,7 @@ class WeakpointTuiApp(App):
 
     def action_enter_command(self) -> None:
         """Show the command bar and switch to COMMAND mode."""
-        bar = self.query_one(CommandBar)
+        bar = self.screen.query_one(CommandBar)
         bar.show(":")
         self._set_mode("COMMAND")
 
@@ -143,7 +146,7 @@ class WeakpointTuiApp(App):
     def action_deselect(self) -> None:
         """Esc: cancel COMMAND/INSERT mode if active, otherwise clear selection."""
         if self.state_mode in ("COMMAND", "INSERT"):
-            bar = self.query_one(CommandBar)
+            bar = self.screen.query_one(CommandBar)
             bar.hide()
             self._insert_target_id = None
             self._set_mode("NORMAL")
@@ -209,7 +212,7 @@ class WeakpointTuiApp(App):
         if not isinstance(item, TextBox):
             self._set_status_message("select a text box first", error=True)
             return
-        bar = self.query_one(CommandBar)
+        bar = self.screen.query_one(CommandBar)
         bar.show("text:")
         bar.value = item.text
         self._set_mode("INSERT")
@@ -233,7 +236,7 @@ class WeakpointTuiApp(App):
         mode = self.state_mode
         if mode not in ("COMMAND", "INSERT"):
             return
-        bar = self.query_one(CommandBar)
+        bar = self.screen.query_one(CommandBar)
         value = event.value
         bar.hide()
         self._set_mode("NORMAL")
@@ -282,7 +285,7 @@ class WeakpointTuiApp(App):
         """Update mode state and reflect it on the status bar."""
         self.state_mode = mode
         try:
-            status = self.query_one(StatusBar)
+            status = self.screen.query_one(StatusBar)
         except Exception:
             return
         status.mode = mode
@@ -290,7 +293,7 @@ class WeakpointTuiApp(App):
     def _set_status_message(self, msg: str, error: bool = False) -> None:
         """Push a status message (red if error) to the status bar."""
         try:
-            status = self.query_one(StatusBar)
+            status = self.screen.query_one(StatusBar)
         except Exception:
             return
         status.message = msg
@@ -299,16 +302,16 @@ class WeakpointTuiApp(App):
     def _refresh_ui(self, message: str | None = None) -> None:
         """Push current state into all visible widgets and optionally set a message."""
         deck = self.state.deck
-        canvas = self.query_one(SlideCanvas)
+        canvas = self.screen.query_one(SlideCanvas)
         canvas.slide = deck.slides[deck.current_index]
         canvas.selected_id = self.state.selected_id
         canvas.deck_dir = None if deck.path is None else os.path.dirname(deck.path)
 
-        panel = self.query_one(SlidePanel)
+        panel = self.screen.query_one(SlidePanel)
         panel.deck = deck
         panel.refresh()
 
-        status = self.query_one(StatusBar)
+        status = self.screen.query_one(StatusBar)
         status.slide_i = deck.current_index + 1
         status.slide_n = len(deck.slides)
         status.path = deck.path
