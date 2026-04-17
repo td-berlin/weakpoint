@@ -63,6 +63,8 @@ def grid_to_rich_text(grid: Grid) -> Text:
     for r, row in enumerate(grid):
         if r > 0:
             out.append("\n")
+        if not row:
+            continue
         run_chars: list[str] = []
         run_color = row[0][1]
         for ch, color in row:
@@ -96,11 +98,11 @@ def _compose(
 
 
 def _draw_title(grid: Grid, title: str, cols: int) -> None:
-    """Write the slide title centered on row 0."""
+    """Write the slide title centered on row 0, bold."""
     text = title[:cols]
     start = max(0, (cols - len(text)) // 2)
     for i, ch in enumerate(text):
-        grid[0][start + i] = (ch, DEFAULT)
+        grid[0][start + i] = (ch, "bold")
 
 
 def _draw_textbox(grid: Grid, box: TextBox, *, selected: bool, cols: int, rows: int) -> None:
@@ -110,7 +112,12 @@ def _draw_textbox(grid: Grid, box: TextBox, *, selected: bool, cols: int, rows: 
     y2 = min(rows - 1, box.y + box.h - 1)
     if x2 <= x1 or y2 <= y1:
         return
-    border_color = SELECTED_COLOR if selected else box.color
+    if selected:
+        border_color = SELECTED_COLOR
+    elif box.bold:
+        border_color = f"bold {box.color}" if box.color != DEFAULT else "bold"
+    else:
+        border_color = box.color
     for x in range(x1, x2 + 1):
         grid[y1][x] = ("-", border_color)
         grid[y2][x] = ("-", border_color)
@@ -125,12 +132,17 @@ def _draw_textbox(grid: Grid, box: TextBox, *, selected: bool, cols: int, rows: 
     if inner_w <= 0 or inner_h <= 0:
         return
 
-    text_color = box.color
+    if box.bold and box.color != DEFAULT:
+        text_style = f"bold {box.color}"
+    elif box.bold:
+        text_style = "bold"
+    else:
+        text_style = box.color
     lines_out = _layout_lines(box, inner_w)[:inner_h]
     for li, line in enumerate(lines_out):
         padded = _align(line, inner_w, box.align)
         for i, ch in enumerate(padded[:inner_w]):
-            grid[y1 + 1 + li][x1 + 1 + i] = (ch, text_color)
+            grid[y1 + 1 + li][x1 + 1 + i] = (ch, text_style)
 
 
 def _layout_lines(box: TextBox, inner_w: int) -> list[str]:

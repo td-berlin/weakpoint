@@ -177,3 +177,38 @@ def test_grid_to_rich_text_produces_single_text_with_newlines():
     out = grid_to_rich_text(grid)
     assert isinstance(out, Text)
     assert out.plain == "ab\ncd"
+
+
+def test_grid_to_rich_text_handles_empty_row():
+    from rich.text import Text
+    grid = [[("a", "default")], [], [("b", "default")]]
+    out = grid_to_rich_text(grid)
+    assert isinstance(out, Text)
+    assert out.plain == "a\n\nb"
+
+
+def test_title_is_bold():
+    slide = Slide(title="Hi")
+    grid = compose_slide(slide, selected_id=None, deck_dir=None)
+    # Title cells carry "bold" style.
+    assert grid[0][49] == ("H", "bold")
+    assert grid[0][50] == ("i", "bold")
+
+
+def test_bold_textbox_border_and_text_carry_bold_style():
+    box = TextBox(id="b", x=0, y=0, w=10, h=3, text="hello", bold=True, color="green")
+    slide = Slide(text_boxes=[box])
+    grid = compose_slide(slide, selected_id=None, deck_dir=None)
+    # Border carries "bold green".
+    assert grid[0][0] == ("+", "bold green")
+    # Text inside carries "bold green".
+    assert grid[1][1] == ("h", "bold green")
+
+
+def test_bold_textbox_default_color_uses_bold_only():
+    box = TextBox(id="b", x=0, y=0, w=10, h=3, text="hello", bold=True)
+    slide = Slide(text_boxes=[box])
+    grid = compose_slide(slide, selected_id=None, deck_dir=None)
+    # color is "default" + bold -> just "bold"
+    assert grid[0][0] == ("+", "bold")
+    assert grid[1][1] == ("h", "bold")
