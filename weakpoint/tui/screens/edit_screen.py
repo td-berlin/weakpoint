@@ -25,7 +25,8 @@ class EditScreen(Screen):
         width: 24;
     }
     #canvas {
-        width: 1fr;
+        width: auto;
+        height: auto;
     }
     StatusBar {
         height: 1;

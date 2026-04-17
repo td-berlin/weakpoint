@@ -12,6 +12,13 @@ from weakpoint.tui.render import compose_slide, grid_to_rich_text
 class SlideCanvas(Widget):
     """Render the active slide at full resolution (100x30 cells)."""
 
+    DEFAULT_CSS = """
+    SlideCanvas {
+        width: 100;
+        height: 30;
+    }
+    """
+
     slide: reactive[Slide | None] = reactive(None)
     selected_id: reactive[str | None] = reactive(None)
     deck_dir: reactive[str | None] = reactive(None)

@@ -148,6 +148,7 @@ def parse(line: str) -> Command:
 
 
 def _parse_box(rest: str) -> AddBox:
+    """Parse 'X Y W H [TEXT]' into AddBox; raise ParseError on bad numbers."""
     parts = rest.split(" ", 4)
     if len(parts) < 4:
         raise ParseError("box requires: box X Y W H [TEXT]")
@@ -160,6 +161,7 @@ def _parse_box(rest: str) -> AddBox:
 
 
 def _parse_on_off(verb: str, arg: str) -> bool:
+    """Return True for 'on', False for 'off'; raise ParseError otherwise."""
     if arg == "on":
         return True
     if arg == "off":
@@ -200,6 +202,7 @@ def dispatch(cmd: Command, state: AppState) -> DispatchResult:
 
 
 def _dispatch(cmd: Command, state: AppState) -> DispatchResult:
+    """Apply ``cmd`` to ``state`` without exception wrapping; see ``dispatch``."""
     if isinstance(cmd, AddBox):
         return _do_add_box(cmd, state)
     if isinstance(cmd, AddImage):
@@ -234,18 +237,22 @@ def _dispatch(cmd: Command, state: AppState) -> DispatchResult:
 
 
 def _current(state: AppState) -> Slide:
+    """Return the slide at ``state.deck.current_index``."""
     return state.deck.slides[state.deck.current_index]
 
 
 def _new_id() -> str:
+    """Return a fresh uuid4 hex string."""
     return uuid.uuid4().hex
 
 
 def _in_bounds(x: int, y: int, w: int, h: int) -> bool:
+    """True iff a w×h rectangle at (x, y) fits inside the slide canvas."""
     return w > 0 and h > 0 and x >= 0 and y >= 0 and x + w <= SLIDE_COLS and y + h <= SLIDE_ROWS
 
 
 def _do_add_box(cmd: AddBox, state: AppState) -> DispatchResult:
+    """Insert a new TextBox if it fits; reject otherwise."""
     if not _in_bounds(cmd.x, cmd.y, cmd.w, cmd.h):
         return DispatchResult(message="out of bounds", error=True)
     box = TextBox(id=_new_id(), x=cmd.x, y=cmd.y, w=cmd.w, h=cmd.h, text=cmd.text)
@@ -256,6 +263,7 @@ def _do_add_box(cmd: AddBox, state: AppState) -> DispatchResult:
 
 
 def _do_add_image(cmd: AddImage, state: AppState) -> DispatchResult:
+    """Insert an image with default 40x12 size, centered on the slide."""
     x = (SLIDE_COLS - DEFAULT_IMAGE_W) // 2
     y = (SLIDE_ROWS - DEFAULT_IMAGE_H) // 2
     img = ImageModel(id=_new_id(), x=x, y=y, w=DEFAULT_IMAGE_W, h=DEFAULT_IMAGE_H, path=cmd.path)
@@ -266,6 +274,7 @@ def _do_add_image(cmd: AddImage, state: AppState) -> DispatchResult:
 
 
 def _mutate_selected_box(state: AppState, fn, msg: str) -> DispatchResult:
+    """Apply ``fn`` to the selected TextBox; error if nothing selected."""
     box = _selected_box(state)
     if box is None:
         return DispatchResult(message="select a text box first", error=True)
@@ -275,6 +284,7 @@ def _mutate_selected_box(state: AppState, fn, msg: str) -> DispatchResult:
 
 
 def _selected_box(state: AppState) -> TextBox | None:
+    """Return the currently selected TextBox, or None."""
     if state.selected_id is None:
         return None
     for b in _current(state).text_boxes:
@@ -284,6 +294,7 @@ def _selected_box(state: AppState) -> TextBox | None:
 
 
 def _do_save(path: str | None, state: AppState) -> DispatchResult:
+    """Write the deck to ``path`` (or deck.path); error if both are None."""
     target = path or state.deck.path
     if target is None:
         return DispatchResult(message="save: path required (deck is untitled)", error=True)
@@ -293,6 +304,7 @@ def _do_save(path: str | None, state: AppState) -> DispatchResult:
 
 
 def _do_open(cmd: Open, state: AppState) -> DispatchResult:
+    """Replace state.deck with the deck loaded from ``cmd.path``."""
     if state.dirty and not cmd.force:
         return DispatchResult(message="unsaved changes — use :o! to discard", error=True)
     loaded = load_deck(cmd.path)

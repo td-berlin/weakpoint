@@ -53,5 +53,4 @@ def _fallback(cols: int, rows: int) -> list[list[tuple[str, str]]]:
     return grid
 
 
-# Expose cache_clear on render for tests and app shutdown.
 render.cache_clear = _render_cached.cache_clear  # type: ignore[attr-defined]

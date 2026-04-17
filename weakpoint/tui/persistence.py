@@ -56,6 +56,7 @@ def load_deck(path: str) -> Deck:
 
 
 def _slide_to_dict(slide: Slide) -> dict:
+    """Serialize a Slide to a JSON-ready dict."""
     return {
         "title": slide.title,
         "text_boxes": [asdict(b) for b in slide.text_boxes],
@@ -64,6 +65,7 @@ def _slide_to_dict(slide: Slide) -> dict:
 
 
 def _slide_from_dict(data: dict) -> Slide:
+    """Reconstruct a Slide from a JSON dict (raises TypeError on schema drift)."""
     return Slide(
         title=data.get("title", ""),
         text_boxes=[TextBox(**b) for b in data.get("text_boxes", [])],
