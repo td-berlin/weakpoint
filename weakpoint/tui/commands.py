@@ -5,8 +5,20 @@ AppState value object, mutates it, and returns a DispatchResult.
 """
 from __future__ import annotations
 
+import os
+import uuid
 from dataclasses import dataclass
 from typing import Literal, Union
+
+from weakpoint.tui.models import (
+    SLIDE_COLS,
+    SLIDE_ROWS,
+    Deck,
+    Image as ImageModel,
+    Slide,
+    TextBox,
+)
+from weakpoint.tui.persistence import load_deck, save_deck
 
 
 class ParseError(ValueError):
@@ -55,7 +67,6 @@ class Numbered:
 @dataclass(frozen=True)
 class Save:
     path: str | None
-    force_quit: bool
 
 
 @dataclass(frozen=True)
@@ -118,7 +129,7 @@ def parse(line: str) -> Command:
     if head == "numbered":
         return Numbered(on=_parse_on_off("numbered", rest))
     if head == "w":
-        return Save(path=rest or None, force_quit=False)
+        return Save(path=rest or None)
     if head == "wq":
         return SaveQuit(path=rest or None)
     if head == "o":
@@ -157,20 +168,6 @@ def _parse_on_off(verb: str, arg: str) -> bool:
 
 
 # --- dispatcher ---------------------------------------------------------
-
-import os
-import uuid
-
-from weakpoint.tui.models import (
-    SLIDE_COLS,
-    SLIDE_ROWS,
-    Deck,
-    Image as ImageModel,
-    Slide,
-    TextBox,
-)
-from weakpoint.tui.persistence import load_deck, save_deck
-
 
 DEFAULT_IMAGE_W = 40
 DEFAULT_IMAGE_H = 12

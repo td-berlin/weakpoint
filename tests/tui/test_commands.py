@@ -1,12 +1,16 @@
 """Tests for the modal command parser and dispatcher."""
+from pathlib import Path
+
 import pytest
 
 from weakpoint.tui.commands import (
     AddBox,
     AddImage,
     Align,
+    AppState,
     Bullets,
     ColorCmd,
+    DispatchResult,
     Numbered,
     Open,
     ParseError,
@@ -14,8 +18,10 @@ from weakpoint.tui.commands import (
     Save,
     SaveQuit,
     SetTitle,
+    dispatch,
     parse,
 )
+from weakpoint.tui.models import Deck, Image as ImgModel, Slide, TextBox
 
 
 def test_parse_box_with_text():
@@ -70,11 +76,11 @@ def test_parse_bullets_bad_arg():
 
 
 def test_parse_write_no_arg():
-    assert parse("w") == Save(path=None, force_quit=False)
+    assert parse("w") == Save(path=None)
 
 
 def test_parse_write_with_arg():
-    assert parse("w deck.json") == Save(path="deck.json", force_quit=False)
+    assert parse("w deck.json") == Save(path="deck.json")
 
 
 def test_parse_open():
@@ -103,11 +109,6 @@ def test_parse_empty_string():
 
 
 # --- dispatch tests ------------------------------------------------------
-
-from pathlib import Path
-
-from weakpoint.tui.commands import AppState, DispatchResult, dispatch
-from weakpoint.tui.models import Deck, Image as ImgModel, Slide, TextBox
 
 
 def _state(deck: Deck | None = None, selected_id: str | None = None) -> AppState:
