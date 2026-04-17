@@ -11,6 +11,8 @@ class CommandBar(Input):
     CommandBar {
         display: none;
         height: 1;
+        border: none;
+        padding: 0;
     }
     CommandBar.-visible {
         display: block;
