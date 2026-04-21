@@ -3,7 +3,9 @@ import json
 from pathlib import Path
 
 from weakpoint.tui.app import WeakpointTuiApp
+from weakpoint.tui.models import TextBox
 from weakpoint.tui.screens.edit_screen import EditScreen
+from weakpoint.tui.widgets.status_bar import StatusBar
 
 
 def _typing_keys(s: str) -> list[str]:
@@ -54,3 +56,60 @@ async def test_add_slide_then_add_box_then_save(tmp_path: Path):
     assert data["version"] == 1
     assert len(data["slides"]) == 2
     assert any(b["text"] == "hello" for s in data["slides"] for b in s["text_boxes"])
+
+
+async def test_tab_cycles_selection_forward_and_back():
+    """Tab / Shift+Tab must cycle selected_id through the current slide's items.
+
+    Guards against Textual's default focus-cycling swallowing Tab before the
+    app-level ``cycle_selection`` action can run.
+    """
+    app = WeakpointTuiApp()
+    async with app.run_test() as pilot:
+        slide = app.state.deck.slides[0]
+        slide.text_boxes.append(TextBox(id="a", x=0, y=0, w=10, h=2, text="A"))
+        slide.text_boxes.append(TextBox(id="b", x=0, y=3, w=10, h=2, text="B"))
+        slide.text_boxes.append(TextBox(id="c", x=0, y=6, w=10, h=2, text="C"))
+
+        assert app.state.selected_id is None
+
+        await pilot.press("tab")
+        assert app.state.selected_id == "a"
+
+        await pilot.press("tab")
+        assert app.state.selected_id == "b"
+
+        await pilot.press("tab")
+        assert app.state.selected_id == "c"
+
+        await pilot.press("tab")
+        assert app.state.selected_id == "a"
+
+        await pilot.press("shift+tab")
+        assert app.state.selected_id == "c"
+
+
+async def test_status_bar_shows_item_counter_on_cycle():
+    """StatusBar must display ``i/n`` for the currently selected item.
+
+    Before any selection: no counter. After Tab: ``1/3``. After another Tab:
+    ``2/3``. This is the visual feedback the user asked for.
+    """
+    app = WeakpointTuiApp()
+    async with app.run_test() as pilot:
+        slide = app.state.deck.slides[0]
+        slide.text_boxes.append(TextBox(id="a", x=0, y=0, w=10, h=2, text="A"))
+        slide.text_boxes.append(TextBox(id="b", x=0, y=3, w=10, h=2, text="B"))
+        slide.text_boxes.append(TextBox(id="c", x=0, y=6, w=10, h=2, text="C"))
+        app._refresh_ui()
+
+        status = pilot.app.screen.query_one(StatusBar)
+        assert status.item_total == 3
+        assert status.item_index == 0
+
+        await pilot.press("tab")
+        assert status.item_index == 1
+        assert status.item_total == 3
+
+        await pilot.press("tab")
+        assert status.item_index == 2

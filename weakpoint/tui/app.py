@@ -29,8 +29,8 @@ class WeakpointTuiApp(App):
         Binding("N", "prev_slide", "prev slide"),
         Binding("a", "append_slide", "append slide"),
         Binding("A", "insert_slide_before", "insert slide"),
-        Binding("tab", "cycle_selection(1)", "cycle +"),
-        Binding("shift+tab", "cycle_selection(-1)", "cycle -"),
+        Binding("tab", "cycle_selection(1)", "cycle +", priority=True),
+        Binding("shift+tab", "cycle_selection(-1)", "cycle -", priority=True),
         Binding("escape", "deselect", "deselect"),
         Binding("h", "move_selected('h')", "left"),
         Binding("j", "move_selected('j')", "down"),
@@ -314,6 +314,13 @@ class WeakpointTuiApp(App):
         status = self.screen.query_one(StatusBar)
         status.slide_i = deck.current_index + 1
         status.slide_n = len(deck.slides)
+        items = deck.slides[deck.current_index].items()
+        status.item_total = len(items)
+        if self.state.selected_id is None:
+            status.item_index = 0
+        else:
+            ids = [it.id for it in items]
+            status.item_index = ids.index(self.state.selected_id) + 1 if self.state.selected_id in ids else 0
         status.path = deck.path
         status.dirty = self.state.dirty
         if message is not None:
