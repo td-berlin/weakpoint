@@ -306,6 +306,7 @@ class WeakpointTuiApp(App):
         canvas.slide = deck.slides[deck.current_index]
         canvas.selected_id = self.state.selected_id
         canvas.deck_dir = None if deck.path is None else os.path.dirname(deck.path)
+        canvas.refresh()
 
         panel = self.screen.query_one(SlidePanel)
         panel.deck = deck

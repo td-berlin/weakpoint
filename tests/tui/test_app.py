@@ -5,6 +5,7 @@ from pathlib import Path
 from weakpoint.tui.app import WeakpointTuiApp
 from weakpoint.tui.models import TextBox
 from weakpoint.tui.screens.edit_screen import EditScreen
+from weakpoint.tui.widgets.slide_canvas import SlideCanvas
 from weakpoint.tui.widgets.status_bar import StatusBar
 
 
@@ -113,3 +114,56 @@ async def test_status_bar_shows_item_counter_on_cycle():
 
         await pilot.press("tab")
         assert status.item_index == 2
+
+
+async def test_bold_toggle_invalidates_canvas():
+    """Pressing ``b`` on a selected text box must invalidate the canvas.
+
+    Textual's reactive compares the old and new value on assignment; because
+    the app mutates the current ``Slide`` in place and reassigns the same
+    object, the reactive equality check suppresses the redraw. ``_refresh_ui``
+    must force ``canvas.refresh()`` so the terminal actually repaints.
+    """
+    app = WeakpointTuiApp()
+    async with app.run_test() as pilot:
+        slide = app.state.deck.slides[0]
+        slide.text_boxes.append(TextBox(id="a", x=0, y=0, w=10, h=3, text="hi"))
+        app._refresh_ui()
+        await pilot.press("tab")
+        canvas = pilot.app.screen.query_one(SlideCanvas)
+
+        refresh_calls = {"n": 0}
+        original_refresh = canvas.refresh
+
+        def spy(*args, **kwargs):
+            refresh_calls["n"] += 1
+            return original_refresh(*args, **kwargs)
+
+        canvas.refresh = spy
+
+        await pilot.press("b")
+        await pilot.pause()
+
+        assert slide.text_boxes[0].bold is True
+        assert refresh_calls["n"] > 0, "canvas.refresh() must run after bold toggle"
+
+
+async def test_bold_toggle_applies_bold_style_to_text():
+    """After pressing ``b``, the rendered Rich Text must contain a bold span.
+
+    Guards against the bold style silently not reaching the output — the
+    visible symptom the user reported.
+    """
+    app = WeakpointTuiApp()
+    async with app.run_test() as pilot:
+        slide = app.state.deck.slides[0]
+        slide.text_boxes.append(TextBox(id="a", x=0, y=0, w=10, h=3, text="hi"))
+        app._refresh_ui()
+        await pilot.press("tab")
+        await pilot.press("b")
+        await pilot.press("escape")
+        await pilot.pause()
+
+        canvas = pilot.app.screen.query_one(SlideCanvas)
+        text = canvas.render()
+        assert any("bold" in str(span.style) for span in text.spans)
