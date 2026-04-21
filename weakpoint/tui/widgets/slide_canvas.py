@@ -16,6 +16,8 @@ class SlideCanvas(Widget):
     SlideCanvas {
         width: 100;
         height: 30;
+        border: solid white;
+        box-sizing: content-box;
     }
     """
 

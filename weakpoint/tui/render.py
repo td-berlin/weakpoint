@@ -34,19 +34,29 @@ def compose_slide(slide: Slide, selected_id: str | None, deck_dir: str | None) -
 
 
 def compose_slide_small(slide: Slide, cols: int, rows: int) -> Grid:
-    """Compose a scaled-down slide grid for the sidebar panel."""
+    """Compose a scaled-down slide grid for the sidebar panel.
+
+    Scaled boxes are guaranteed to be at least 2x2 cells so a rectangular
+    outline is always drawable; without this, any box whose height or
+    width scaled below 2 (e.g. a 20x3 box on a 20x6 mini) collapsed to a
+    single cell and was skipped entirely.
+    """
     scale_x = cols / SLIDE_COLS
     scale_y = rows / SLIDE_ROWS
     grid = blank_grid(cols, rows)
+    if cols < 2 or rows < 2:
+        return grid
     for item in slide.items():
         sx = int(item.x * scale_x)
         sy = int(item.y * scale_y)
-        sw = max(1, int(item.w * scale_x))
-        sh = max(1, int(item.h * scale_y))
+        sw = max(2, int(item.w * scale_x))
+        sh = max(2, int(item.h * scale_y))
         ex = min(cols - 1, sx + sw - 1)
         ey = min(rows - 1, sy + sh - 1)
-        if ex <= sx or ey <= sy:
-            continue
+        if ex - sx < 1:
+            sx = ex - 1
+        if ey - sy < 1:
+            sy = ey - 1
         color = getattr(item, "color", DEFAULT) if isinstance(item, TextBox) else DEFAULT
         for x in range(sx, ex + 1):
             grid[sy][x] = ("-", color)

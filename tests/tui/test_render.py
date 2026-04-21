@@ -170,6 +170,42 @@ def test_compose_slide_small_scales_to_requested_size():
     assert all(len(row) == 20 for row in grid)
 
 
+def test_compose_slide_small_shows_short_box():
+    """A typical 20x3 box at origin must be visible in the 20x6 mini grid.
+
+    The original implementation scaled height via ``int(3 * 6/30) = 0``,
+    clamped to 1, then rejected the box because ``ey <= sy``. Result: the
+    slide panel showed an empty frame for any short box — the regression
+    this test exists to prevent.
+    """
+    box = TextBox(id="b", x=0, y=0, w=20, h=3)
+    slide = Slide(text_boxes=[box])
+    grid = compose_slide_small(slide, cols=20, rows=6)
+    non_blank = [(r, c) for r, row in enumerate(grid) for c, cell in enumerate(row) if cell[0] != " "]
+    assert non_blank, "short box must leave marks in the mini grid"
+
+
+def test_compose_slide_small_shows_narrow_box():
+    """A narrow box (w<5) at origin must also be visible."""
+    box = TextBox(id="b", x=0, y=0, w=4, h=10)
+    slide = Slide(text_boxes=[box])
+    grid = compose_slide_small(slide, cols=20, rows=6)
+    non_blank = [(r, c) for r, row in enumerate(grid) for c, cell in enumerate(row) if cell[0] != " "]
+    assert non_blank, "narrow box must leave marks in the mini grid"
+
+
+def test_compose_slide_small_shows_box_near_bottom_right():
+    """A small box hugging the bottom-right corner must still be visible.
+
+    Guards against the fix shifting the box off the grid when clamped.
+    """
+    box = TextBox(id="b", x=95, y=27, w=5, h=3)
+    slide = Slide(text_boxes=[box])
+    grid = compose_slide_small(slide, cols=20, rows=6)
+    non_blank = [(r, c) for r, row in enumerate(grid) for c, cell in enumerate(row) if cell[0] != " "]
+    assert non_blank, "bottom-right box must still appear in the mini grid"
+
+
 def test_grid_to_rich_text_produces_single_text_with_newlines():
     from rich.text import Text
 
