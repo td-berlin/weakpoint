@@ -229,3 +229,25 @@ async def test_canvas_populates_on_boot_without_path():
         await pilot.pause()
         canvas = pilot.app.screen.query_one(SlideCanvas)
         assert canvas.slide is not None
+
+
+async def test_insert_mode_converts_backslash_n_to_newline():
+    """Editing a text box via ``i`` must honor ``\\n`` as a newline.
+
+    Enter submits the command bar, so the escape is the only way to get
+    multiple lines into a box from the UI.
+    """
+    app = WeakpointTuiApp()
+    async with app.run_test() as pilot:
+        slide = app.state.deck.slides[0]
+        slide.text_boxes.append(TextBox(id="a", x=0, y=0, w=20, h=5, text=""))
+        app._refresh_ui()
+        await pilot.press("tab")
+        await pilot.press("i")
+        await pilot.press(*_typing_keys("line1"))
+        await pilot.press("backslash")
+        await pilot.press("n")
+        await pilot.press(*_typing_keys("line2"))
+        await pilot.press("enter")
+
+        assert slide.text_boxes[0].text == "line1\nline2"

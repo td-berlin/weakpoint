@@ -6,7 +6,7 @@ import os
 from textual.app import App
 from textual.binding import Binding
 
-from weakpoint.tui.commands import AppState, ParseError, dispatch, parse
+from weakpoint.tui.commands import AppState, ParseError, dispatch, parse, unescape_newlines
 from weakpoint.tui.models import SLIDE_COLS, SLIDE_ROWS, Deck, Slide, TextBox
 from weakpoint.tui.persistence import load_deck
 from weakpoint.tui.screens.edit_screen import EditScreen
@@ -211,14 +211,18 @@ class WeakpointTuiApp(App):
         self._refresh_ui()
 
     def action_edit_text(self) -> None:
-        """Open the command bar to edit the selected text box's contents."""
+        """Open the command bar to edit the selected text box's contents.
+
+        Real newlines in the stored text are shown as the ``\\n`` escape so
+        the single-line command bar can round-trip multi-line content.
+        """
         item = self._selected_item()
         if not isinstance(item, TextBox):
             self._set_status_message("select a text box first", error=True)
             return
         bar = self.screen.query_one(CommandBar)
         bar.show("text:")
-        bar.value = item.text
+        bar.value = item.text.replace("\n", "\\n")
         self._set_mode("INSERT")
         self._insert_target_id = item.id
 
@@ -252,7 +256,7 @@ class WeakpointTuiApp(App):
             slide = self._current_slide()
             for b in slide.text_boxes:
                 if b.id == target_id:
-                    b.text = value
+                    b.text = unescape_newlines(value)
                     self.state.dirty = True
                     break
             self._refresh_ui("text updated")

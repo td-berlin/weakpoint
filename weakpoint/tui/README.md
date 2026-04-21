@@ -74,6 +74,20 @@ Slides are a fixed **100 × 30 cell** grid. All coordinates in `:box` and moves/
 
 Single JSON file, typically `.wpt.json`. Version `1`. Images referenced by path — relative paths resolve against the deck file's directory.
 
+## Line breaks
+
+The command bar is single-line (Enter submits), so to put multiple lines inside
+a box, type the literal escape `\n` — it's converted to a real newline when the
+text enters the model:
+
+```
+:box 0 0 20 5 line one\nline two
+```
+
+With `:bullets on` or `:numbered on` each logical line gets its own prefix, so
+`a\nb\nc` with bullets renders as `• a`, `• b`, `• c`. Editing a multi-line box
+with `i` pre-fills the bar with `\n` escapes so you can round-trip it.
+
 ## Tips
 
 - Images render as colored ASCII at their current box size. Resizing re-renders.

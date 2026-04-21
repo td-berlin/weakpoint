@@ -38,6 +38,17 @@ def test_parse_box_bad_numbers():
         parse("box oops 1 2 3")
 
 
+def test_parse_box_converts_backslash_n_to_newline():
+    """Literal ``\\n`` in the box text must become a real newline.
+
+    Users can't type Enter in the command bar (Enter submits), so the
+    escape is the only way to get multi-line text through ``:box``.
+    """
+    cmd = parse("box 0 0 20 5 line1\\nline2")
+    assert isinstance(cmd, AddBox)
+    assert cmd.text == "line1\nline2"
+
+
 def test_parse_image():
     assert parse("image pics/cat.png") == AddImage(path="pics/cat.png")
 

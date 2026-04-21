@@ -148,7 +148,11 @@ def parse(line: str) -> Command:
 
 
 def _parse_box(rest: str) -> AddBox:
-    """Parse 'X Y W H [TEXT]' into AddBox; raise ParseError on bad numbers."""
+    """Parse 'X Y W H [TEXT]' into AddBox; raise ParseError on bad numbers.
+
+    Literal ``\\n`` sequences in the text are converted to real newlines so
+    users can create multi-line boxes from the single-line command bar.
+    """
     parts = rest.split(" ", 4)
     if len(parts) < 4:
         raise ParseError("box requires: box X Y W H [TEXT]")
@@ -156,8 +160,13 @@ def _parse_box(rest: str) -> AddBox:
         x, y, w, h = (int(parts[i]) for i in range(4))
     except ValueError as exc:
         raise ParseError(f"box: bad number ({exc})") from exc
-    text = parts[4] if len(parts) == 5 else ""
+    text = unescape_newlines(parts[4]) if len(parts) == 5 else ""
     return AddBox(x=x, y=y, w=w, h=h, text=text)
+
+
+def unescape_newlines(s: str) -> str:
+    """Convert literal ``\\n`` sequences in user-typed text to real newlines."""
+    return s.replace("\\n", "\n")
 
 
 def _parse_on_off(verb: str, arg: str) -> bool:
