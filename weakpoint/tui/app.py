@@ -66,11 +66,15 @@ class WeakpointTuiApp(App):
         self._insert_target_id: str | None = None
 
     def on_mount(self) -> None:
-        """Install the EditScreen and refresh the UI on first mount."""
-        self.push_screen(EditScreen(), callback=self._after_screen_mounted)
+        """Install the EditScreen; its ``on_mount`` will trigger the first refresh."""
+        self.push_screen(EditScreen())
 
     def _after_screen_mounted(self) -> None:
-        """Refresh the UI once EditScreen and its children are composed."""
+        """Refresh the UI once EditScreen and its children are composed.
+
+        Called from ``EditScreen.on_mount`` so the canvas and panel are
+        populated on boot, including for CLI-opened decks.
+        """
         self._refresh_ui()
         if self._boot_error:
             self._set_status_message(self._boot_error, error=True)

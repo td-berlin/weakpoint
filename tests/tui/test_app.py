@@ -6,6 +6,7 @@ from weakpoint.tui.app import WeakpointTuiApp
 from weakpoint.tui.models import TextBox
 from weakpoint.tui.screens.edit_screen import EditScreen
 from weakpoint.tui.widgets.slide_canvas import SlideCanvas
+from weakpoint.tui.widgets.slide_panel import SlidePanel
 from weakpoint.tui.widgets.status_bar import StatusBar
 
 
@@ -167,3 +168,64 @@ async def test_bold_toggle_applies_bold_style_to_text():
         canvas = pilot.app.screen.query_one(SlideCanvas)
         text = canvas.render()
         assert any("bold" in str(span.style) for span in text.spans)
+
+
+async def test_canvas_populates_on_boot_with_initial_path(tmp_path: Path):
+    """Opening a deck via CLI must populate SlideCanvas on first render.
+
+    Textual's ``push_screen(..., callback=...)`` fires on screen *dismissal*,
+    not on mount, so wiring the initial refresh through that callback leaves
+    the canvas empty until the user pokes the app. The fix must run the app's
+    refresh as soon as EditScreen mounts.
+    """
+    deck_path = tmp_path / "deck.wpt.json"
+    deck_path.write_text(json.dumps({
+        "version": 1,
+        "current_index": 0,
+        "slides": [{
+            "title": "",
+            "text_boxes": [{
+                "id": "x", "x": 0, "y": 0, "w": 20, "h": 3,
+                "text": "hello from file",
+                "bold": False, "color": "default", "align": "left",
+                "bullets": False, "numbered": False,
+            }],
+            "images": [],
+        }],
+    }))
+
+    app = WeakpointTuiApp(initial_path=str(deck_path))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        canvas = pilot.app.screen.query_one(SlideCanvas)
+        assert canvas.slide is not None
+        assert "hello from file" in canvas.render().plain
+
+
+async def test_panel_populates_on_boot_with_initial_path(tmp_path: Path):
+    """SlidePanel must be populated immediately when a deck is loaded at launch."""
+    deck_path = tmp_path / "deck.wpt.json"
+    deck_path.write_text(json.dumps({
+        "version": 1,
+        "current_index": 0,
+        "slides": [
+            {"title": "", "text_boxes": [], "images": []},
+            {"title": "", "text_boxes": [], "images": []},
+        ],
+    }))
+
+    app = WeakpointTuiApp(initial_path=str(deck_path))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        panel = pilot.app.screen.query_one(SlidePanel)
+        assert panel.deck is not None
+        assert len(panel.deck.slides) == 2
+
+
+async def test_canvas_populates_on_boot_without_path():
+    """A blank-deck launch still needs to show the starter slide."""
+    app = WeakpointTuiApp()
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        canvas = pilot.app.screen.query_one(SlideCanvas)
+        assert canvas.slide is not None

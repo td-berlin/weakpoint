@@ -42,3 +42,11 @@ class EditScreen(Screen):
                 yield SlideCanvas(id="canvas")
             yield StatusBar(id="status")
             yield CommandBar(id="cmd")
+
+    def on_mount(self) -> None:
+        """Populate the widgets with current deck state on first mount.
+
+        Textual's ``push_screen(..., callback=...)`` fires on dismissal, not
+        mount, so the app must trigger its initial refresh from here.
+        """
+        self.app._after_screen_mounted()
