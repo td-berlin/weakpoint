@@ -7,7 +7,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.screen import Screen
 
-from weakpoint.tui.widgets.slide_canvas import SlideCanvas
+from weakpoint.widgets.slide_canvas import SlideCanvas
 
 
 class PresentScreen(Screen):

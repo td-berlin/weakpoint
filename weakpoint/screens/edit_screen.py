@@ -5,10 +5,10 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
 
-from weakpoint.tui.widgets.command_bar import CommandBar
-from weakpoint.tui.widgets.slide_canvas import SlideCanvas
-from weakpoint.tui.widgets.slide_panel import SlidePanel
-from weakpoint.tui.widgets.status_bar import StatusBar
+from weakpoint.widgets.command_bar import CommandBar
+from weakpoint.widgets.slide_canvas import SlideCanvas
+from weakpoint.widgets.slide_panel import SlidePanel
+from weakpoint.widgets.status_bar import StatusBar
 
 
 class EditScreen(Screen):

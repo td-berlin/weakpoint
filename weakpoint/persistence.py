@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict
 
-from weakpoint.tui.models import Deck, Image, Slide, TextBox
+from weakpoint.models import Deck, Image, Slide, TextBox
 
 
 VERSION = 1

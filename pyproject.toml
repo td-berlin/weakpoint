@@ -5,10 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "weakpoint"
 version = "0.1.0"
-description = "Minimal PowerPoint clone (WeakPoint)"
+description = "Terminal-only PowerPoint clone with a Vim-style modal UI."
 requires-python = ">=3.10"
 dependencies = [
-    "PyQt6>=6.6",
     "textual>=0.80",
     "pillow>=10",
 ]

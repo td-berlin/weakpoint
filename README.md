@@ -1,12 +1,20 @@
-# WeakPoint TUI — Cheat Sheet
+# WeakPoint
 
-Terminal-only deck editor. Vim-style modal UI.
+Terminal-only deck editor. Vim-style modal UI, built on [Textual](https://textual.textualize.io/).
+
+## Install
+
+```
+uv sync                    # or: pip install -e .
+uv sync --extra dev        # include pytest
+```
 
 ## Launch
 
 ```
-python -m weakpoint.tui                 # blank deck
-python -m weakpoint.tui path/deck.json  # open an existing deck
+python -m weakpoint                    # blank deck
+python -m weakpoint path/deck.json     # open an existing deck
+python -m weakpoint demo/jf_demo.json  # try the bundled demo
 ```
 
 ## Modes

@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from weakpoint.tui.models import Deck, Image, Slide, TextBox
-from weakpoint.tui.persistence import load_deck, save_deck
+from weakpoint.models import Deck, Image, Slide, TextBox
+from weakpoint.persistence import load_deck, save_deck
 
 
 def _sample_deck() -> Deck:

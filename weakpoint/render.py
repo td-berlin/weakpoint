@@ -6,8 +6,8 @@ import textwrap
 
 from rich.text import Text
 
-from weakpoint.tui.image_ascii import render as image_render
-from weakpoint.tui.models import (
+from weakpoint.image_ascii import render as image_render
+from weakpoint.models import (
     SLIDE_COLS,
     SLIDE_ROWS,
     Image,

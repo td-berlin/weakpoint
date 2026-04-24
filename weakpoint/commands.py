@@ -10,7 +10,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Literal, Union
 
-from weakpoint.tui.models import (
+from weakpoint.models import (
     SLIDE_COLS,
     SLIDE_ROWS,
     Deck,
@@ -18,7 +18,7 @@ from weakpoint.tui.models import (
     Slide,
     TextBox,
 )
-from weakpoint.tui.persistence import load_deck, save_deck
+from weakpoint.persistence import load_deck, save_deck
 
 
 class ParseError(ValueError):

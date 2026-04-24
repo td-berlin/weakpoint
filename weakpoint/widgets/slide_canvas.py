@@ -5,8 +5,8 @@ from rich.text import Text
 from textual.reactive import reactive
 from textual.widget import Widget
 
-from weakpoint.tui.models import Slide
-from weakpoint.tui.render import compose_slide, grid_to_rich_text
+from weakpoint.models import Slide
+from weakpoint.render import compose_slide, grid_to_rich_text
 
 
 class SlideCanvas(Widget):

@@ -1,7 +1,7 @@
 """Tests for Pillow-backed image -> colored ASCII conversion."""
 from pathlib import Path
 
-from weakpoint.tui.image_ascii import RAMP, render
+from weakpoint.image_ascii import RAMP, render
 
 
 def test_render_returns_requested_dimensions(tiny_png: str):
@@ -45,7 +45,7 @@ def test_missing_file_returns_fallback_grid(tmp_path: Path):
 
 
 def test_cache_hit_does_not_reread_file(tiny_png: str, monkeypatch):
-    from weakpoint.tui import image_ascii
+    from weakpoint import image_ascii
 
     calls = {"n": 0}
     real_open = image_ascii.PILImage.open

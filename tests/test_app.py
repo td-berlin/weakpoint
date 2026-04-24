@@ -2,12 +2,12 @@
 import json
 from pathlib import Path
 
-from weakpoint.tui.app import WeakpointTuiApp
-from weakpoint.tui.models import TextBox
-from weakpoint.tui.screens.edit_screen import EditScreen
-from weakpoint.tui.widgets.slide_canvas import SlideCanvas
-from weakpoint.tui.widgets.slide_panel import SlidePanel
-from weakpoint.tui.widgets.status_bar import StatusBar
+from weakpoint.app import WeakpointTuiApp
+from weakpoint.models import TextBox
+from weakpoint.screens.edit_screen import EditScreen
+from weakpoint.widgets.slide_canvas import SlideCanvas
+from weakpoint.widgets.slide_panel import SlidePanel
+from weakpoint.widgets.status_bar import StatusBar
 
 
 def _typing_keys(s: str) -> list[str]:

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from weakpoint.tui.commands import (
+from weakpoint.commands import (
     AddBox,
     AddImage,
     Align,
@@ -21,7 +21,7 @@ from weakpoint.tui.commands import (
     dispatch,
     parse,
 )
-from weakpoint.tui.models import Deck, Image as ImgModel, Slide, TextBox
+from weakpoint.models import Deck, Image as ImgModel, Slide, TextBox
 
 
 def test_parse_box_with_text():

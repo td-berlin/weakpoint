@@ -1,6 +1,6 @@
 """Tests for the slide grid composer."""
-from weakpoint.tui.models import SLIDE_COLS, SLIDE_ROWS, Image, Slide, TextBox
-from weakpoint.tui.render import (
+from weakpoint.models import SLIDE_COLS, SLIDE_ROWS, Image, Slide, TextBox
+from weakpoint.render import (
     blank_grid,
     compose_slide,
     compose_slide_small,
@@ -113,7 +113,7 @@ def test_unselected_textbox_border_uses_box_color():
 
 
 def test_image_draws_via_image_ascii(monkeypatch):
-    from weakpoint.tui import render as render_mod
+    from weakpoint import render as render_mod
 
     def fake(path, cols, rows):
         return [[("X", "#abcdef") for _ in range(cols)] for _ in range(rows)]
@@ -129,7 +129,7 @@ def test_image_draws_via_image_ascii(monkeypatch):
 
 
 def test_image_path_resolved_against_deck_dir(monkeypatch, tmp_path):
-    from weakpoint.tui import render as render_mod
+    from weakpoint import render as render_mod
 
     seen = {}
 
@@ -146,7 +146,7 @@ def test_image_path_resolved_against_deck_dir(monkeypatch, tmp_path):
 
 
 def test_image_absolute_path_not_rejoined(monkeypatch, tmp_path):
-    from weakpoint.tui import render as render_mod
+    from weakpoint import render as render_mod
 
     seen = {}
 

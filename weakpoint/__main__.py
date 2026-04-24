@@ -1,23 +1,16 @@
-"""Entry point: ``python -m weakpoint``."""
+"""CLI entry point: ``python -m weakpoint [deck.json]``."""
 from __future__ import annotations
 
 import sys
 
-from PyQt6.QtWidgets import QApplication
-
-from weakpoint.app import MainWindow
-from weakpoint.ascii_view import render_deck
+from weakpoint.app import WeakpointTuiApp
 
 
-def main() -> int:
-    """Launch the GUI and print the final deck state as ASCII on exit."""
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    exit_code = app.exec()
-    print(render_deck(window._deck))
-    return exit_code
+def main() -> None:
+    """Launch the app, optionally opening a deck file from argv[1]."""
+    path = sys.argv[1] if len(sys.argv) > 1 else None
+    WeakpointTuiApp(initial_path=path).run()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

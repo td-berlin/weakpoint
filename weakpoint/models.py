@@ -1,82 +1,63 @@
-"""Data models for the minimal PowerPoint clone."""
+"""Pure data model for the weakpoint terminal UI."""
 from __future__ import annotations
 
-from PyQt6.QtCore import QRectF, QSize
-from PyQt6.QtGui import QPainter, QPixmap
-from PyQt6.QtWidgets import QGraphicsScene
-
-from weakpoint.textbox import TextBoxItem
+from dataclasses import dataclass, field
+from typing import Literal
 
 
-SLIDE_WIDTH = 960
-SLIDE_HEIGHT = 540
+SLIDE_COLS = 100
+SLIDE_ROWS = 30
+
+Color = str
+Align = Literal["left", "center", "right"]
 
 
+@dataclass
+class TextBox:
+    """A rectangular text region on a slide."""
+
+    id: str
+    x: int
+    y: int
+    w: int
+    h: int
+    text: str = ""
+    bold: bool = False
+    color: Color = "default"
+    align: Align = "left"
+    bullets: bool = False
+    numbered: bool = False
+
+
+@dataclass
+class Image:
+    """An image region on a slide; rendered as colored ASCII at draw time."""
+
+    id: str
+    x: int
+    y: int
+    w: int
+    h: int
+    path: str
+
+
+@dataclass
 class Slide:
-    """One slide: owns a QGraphicsScene and the list of text boxes placed on it."""
+    """One slide: optional title plus text boxes and images."""
 
-    def __init__(self) -> None:
-        """Create an empty slide with a 960x540 scene."""
-        self.scene: QGraphicsScene = QGraphicsScene()
-        self.scene.setSceneRect(QRectF(0, 0, SLIDE_WIDTH, SLIDE_HEIGHT))
-        self.text_boxes: list[TextBoxItem] = []
+    title: str = ""
+    text_boxes: list[TextBox] = field(default_factory=list)
+    images: list[Image] = field(default_factory=list)
 
-    def add_text_box(self, rect: QRectF) -> TextBoxItem:
-        """Create a text box with the given rect, add it to the scene, and return it."""
-        item = TextBoxItem(rect)
-        self.scene.addItem(item)
-        self.text_boxes.append(item)
-        return item
-
-    def remove_text_box(self, item: TextBoxItem) -> None:
-        """Remove a text box from the scene and tracking list."""
-        if item in self.text_boxes:
-            self.text_boxes.remove(item)
-        self.scene.removeItem(item)
-
-    def render_thumbnail(self, size: QSize) -> QPixmap:
-        """Render the slide's scene into a QPixmap of the requested size."""
-        pixmap = QPixmap(size)
-        pixmap.fill()
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        self.scene.render(painter)
-        painter.end()
-        return pixmap
+    def items(self) -> list[TextBox | Image]:
+        """Return items in draw order: images first (behind), text boxes second (in front)."""
+        return [*self.images, *self.text_boxes]
 
 
+@dataclass
 class Deck:
-    """The presentation: an ordered list of slides with a current selection."""
+    """The presentation: an ordered list of slides plus the current selection."""
 
-    def __init__(self) -> None:
-        """Create a deck with exactly one empty slide."""
-        self.slides: list[Slide] = [Slide()]
-        self.current_index: int = 0
-
-    def add_slide(self, at: int | None = None) -> Slide:
-        """Insert a new slide and make it current.
-
-        With no argument, insert directly after the current slide. When ``at``
-        is given, insert at that index.
-        """
-        insert_at = self.current_index + 1 if at is None else at
-        new_slide = Slide()
-        self.slides.insert(insert_at, new_slide)
-        self.current_index = insert_at
-        return new_slide
-
-    def remove_slide(self, index: int) -> None:
-        """Remove the slide at ``index``; no-op if this is the only slide."""
-        if len(self.slides) <= 1:
-            return
-        del self.slides[index]
-        if self.current_index > index:
-            self.current_index -= 1
-        elif self.current_index >= len(self.slides):
-            self.current_index = len(self.slides) - 1
-
-    def move_to(self, index: int) -> None:
-        """Select the slide at ``index``."""
-        if not 0 <= index < len(self.slides):
-            raise IndexError(f"slide index {index} out of range")
-        self.current_index = index
+    slides: list[Slide] = field(default_factory=lambda: [Slide()])
+    current_index: int = 0
+    path: str | None = None

@@ -1,9 +1,9 @@
 """Tests for widget-level invariants that guard against regressions."""
 from textual.color import Color
 
-from weakpoint.tui.app import WeakpointTuiApp
-from weakpoint.tui.widgets.command_bar import CommandBar
-from weakpoint.tui.widgets.slide_canvas import SlideCanvas
+from weakpoint.app import WeakpointTuiApp
+from weakpoint.widgets.command_bar import CommandBar
+from weakpoint.widgets.slide_canvas import SlideCanvas
 
 
 def test_command_bar_is_always_compact():
