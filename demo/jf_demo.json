@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "current_index": 0,
+  "slides": [
+    {
+      "title": "",
+      "text_boxes": [
+        {
+          "id": "7d55872cfbdb4fada2ab996abb166fb4",
+          "x": 18,
+          "y": 7,
+          "w": 60,
+          "h": 3,
+          "text": "Jour Fixe :)",
+          "bold": false,
+          "color": "green",
+          "align": "center",
+          "bullets": false,
+          "numbered": false
+        },
+        {
+          "id": "820bc7cc927a401ea0e43b1e35f2bd8e",
+          "x": 18,
+          "y": 10,
+          "w": 29,
+          "h": 8,
+          "text": "Present PyCon\nPresent WeakPoint",
+          "bold": false,
+          "color": "default",
+          "align": "left",
+          "bullets": true,
+          "numbered": false
+        }
+      ],
+      "images": []
+    },
+    {
+      "title": "",
+      "text_boxes": [
+        {
+          "id": "a1b2c3d4e5f6478899aabbccddeeff00",
+          "x": 18,
+          "y": 3,
+          "w": 64,
+          "h": 3,
+          "text": "Brought to you by TD Reply",
+          "bold": true,
+          "color": "default",
+          "align": "center",
+          "bullets": false,
+          "numbered": false
+        }
+      ],
+      "images": [
+        {
+          "id": "f00dcafebabe4beefdeadbeef1234567",
+          "x": 30,
+          "y": 9,
+          "w": 40,
+          "h": 16,
+          "path": "td_logo.jpg"
+        }
+      ]
+    }
+  ]
+}
