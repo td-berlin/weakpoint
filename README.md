@@ -4,12 +4,71 @@ A playground for TD Reply employees — technical and non-technical alike — to
 
 Terminal-only PowerPoint clone. Vim-style UI, built on [Textual](https://textual.textualize.io/).
 
-## Install
+## Contribute
+
+Zero to first pull request, even if you've never written code before.
+
+### Stuck on a command? Ask your AI.
+
+Some of the words you'll see below (`terminal`, `git`, `uv`, `branch`, `pull request`) might be unfamiliar — that's expected, and figuring them out *is* the exercise. Don't get stuck silently. Paste the command (or the error you got) into your AI assistant and ask it to explain, walk you through it on your machine, or fix the problem. Doing that *is* AI programming. There is no "cheating" here — the goal is to get comfortable using AI as your collaborator.
+
+Prompts that work well:
+
+- "I'm on macOS and I don't have `uv` installed. How do I install it?"
+- "I ran `git clone ...` and got `command not found: git`. What do I do?"
+- "Walk me through opening a pull request on GitHub from the web UI."
+- "I want to add a feature that does X to WeakPoint. Where in the code should I start?"
+
+### 1. Pick an AI coding assistant
+
+Pick whichever sounds good — they're all great. If you're not sure, pick one and ask *it* to compare.
+
+- **OpenAI Codex** — OpenAI's coding agent, runs in your terminal. **Has a free plan**, so a great place to start.
+- **Google Antigravity** — Google's agentic coding IDE. **Has a free plan**, so also a great place to start.
+- **Claude Code** — Anthropic's coding agent, runs in your terminal (paid)
+- **Cursor** — a full code editor with AI built in, more visual and less terminal (paid)
+
+Each one has its own install instructions. Search the tool's name and follow them — or, even better, set up a different AI first and ask it to walk you through installing the one you actually want. Yes, that's allowed. That's the whole point.
+
+### 2. Get git and GitHub working
+
+You'll need:
+
+- `git` installed on your machine
+- a free account at [github.com](https://github.com), and access to the [td-berlin](https://github.com/td-berlin) org (ask in Slack if you don't have it yet)
+
+If `git` isn't installed, or you've never used GitHub before, **don't fight it alone** — paste exactly that into your AI assistant. A prompt like *"I'm on macOS, I don't have git installed and I've never used GitHub. Walk me through getting set up step by step."* gets you there in a few minutes.
+
+### 3. Get the repo and run the demo
+
+In a terminal:
 
 ```
-uv sync                    # or: pip install -e .
-uv sync --extra dev        # include pytest
+git clone https://github.com/td-berlin/weakpoint.git
+cd weakpoint
+uv sync
+python weakpoint demo/demo.json
 ```
+
+If `uv` isn't installed, ask your AI for the one-liner. (It's `curl -LsSf https://astral.sh/uv/install.sh | sh` on macOS/Linux — but please feel free to ask your AI to explain what that does before you run it.)
+
+### 4. Branch off and build
+
+```
+git checkout -b ab/my_feature
+```
+
+Replace `ab` with your initials and `my_feature` with a short name for what you're building. Then go build something — pick from [Suggested features](#suggested-features) at the bottom of this README or invent your own. Lean on your AI to navigate the code, propose changes, and explain anything that looks like alphabet soup.
+
+### 5. Commit and open a pull request
+
+```
+git add .
+git commit -m "Add my feature"
+git push -u origin ab/my_feature
+```
+
+Then go to [github.com/td-berlin/weakpoint](https://github.com/td-berlin/weakpoint), click **Compare & pull request**, and target `main`.
 
 ## Launch
 
@@ -104,14 +163,7 @@ with `i` pre-fills the bar with `\n` escapes so you can round-trip it.
 - High-contrast source images (silhouettes, logos) look best.
 - The command bar pre-fills with the current box's text when you press `i`.
 
-## Contribute
-
-1. Clone the repo.
-2. Open a branch named `initials/feature_name` (e.g. `ab/feature_name`).
-3. Build your feature.
-4. Open a pull request against `main`.
-
-### Suggested features
+## Suggested features
 
 - Command to toggle "help"
 - Contours around thumbnails
