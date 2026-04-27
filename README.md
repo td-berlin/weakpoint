@@ -12,9 +12,9 @@ uv sync --extra dev        # include pytest
 ## Launch
 
 ```
-python -m weakpoint                    # blank deck
-python -m weakpoint path/deck.json     # open an existing deck
-python -m weakpoint demo/jf_demo.json  # try the bundled demo
+python weakpoint                    # blank deck
+python weakpoint path/deck.json     # open an existing deck
+python weakpoint demo/demo.json     # try the bundled demo
 ```
 
 ## Modes
