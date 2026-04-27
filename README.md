@@ -1,6 +1,8 @@
-# WeakPoint
+# WeakPoint📉
 
-Terminal-only deck editor. Vim-style modal UI, built on [Textual](https://textual.textualize.io/).
+A playground for TD Reply employees — technical and non-technical alike — to experiment with AI programming. Anyone is welcome to clone the repo, branch off, and add a feature. Yes, *anyone* — yes, that means **you**! ✨ Never written a line of code? Perfect. Bring an idea, team up with your favorite AI, and ship something amazing. There are no bad ideas, only unshipped ones. Go forth and build — we believe in you! 🚀💫
+
+Terminal-only PowerPoint clone. Vim-style UI, built on [Textual](https://textual.textualize.io/).
 
 ## Install
 
@@ -101,3 +103,22 @@ with `i` pre-fills the bar with `\n` escapes so you can round-trip it.
 - Images render as colored ASCII at their current box size. Resizing re-renders.
 - High-contrast source images (silhouettes, logos) look best.
 - The command bar pre-fills with the current box's text when you press `i`.
+
+## Contribute
+
+1. Clone the repo.
+2. Open a branch named `initials/feature_name` (e.g. `ab/feature_name`).
+3. Build your feature.
+4. Open a pull request against `main`.
+
+### Suggested features
+
+- Command to toggle "help"
+- Contours around thumbnails
+- Use arrows instead of `HJKL` to move/resize boxes
+- Default box size and position
+- Upload from PPT or PDF
+- Improve error handling (e.g. don't crash if the user enters a non-defined color)
+- Support more shapes
+- Support vertical text alignment
+- Support updating slide order
