@@ -35,7 +35,7 @@ Each one has its own install instructions. Search the tool's name and follow the
 You'll need:
 
 - `git` installed on your machine
-- a free account at [github.com](https://github.com), and access to the [td-berlin](https://github.com/td-berlin) org (ask in Slack if you don't have it yet)
+- a free account at [github.com](https://github.com)
 
 If `git` isn't installed, or you've never used GitHub before, **don't fight it alone** — paste exactly that into your AI assistant. A prompt like *"I'm on macOS, I don't have git installed and I've never used GitHub. Walk me through getting set up step by step."* gets you there in a few minutes.
 
